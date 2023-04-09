@@ -1,4 +1,7 @@
-﻿@model PlantVM
+﻿@using P230_Pronia.DAL;
+@model PlantVM
+@inject ProniaDbContext _context
+
 @{
     ViewData["Title"] = "Edit";
 }
@@ -19,6 +22,16 @@
             position:absolute;
             top:5px;
             right:5px;
+        }
+
+        .ColorSizeBtn {
+            width: 22px;
+            height: 22px;
+            background: red;
+            position: absolute;
+            top: 10px;
+            right: 700px;
+            border:none;
         }
     </style>
 }
@@ -141,27 +154,25 @@
                 <div class="d-flex">
                     <select class="form-control sizes" asp-items="@(new SelectList(ViewBag.Sizes,"Id","Name"))"></select>
                     <select class="form-control colors" asp-items="@(new SelectList(ViewBag.Colors, "Id", "Name"))"></select>
-                    <input class="form-control quantity" type="number" class="mt-4 " placeholder="How much this plant?" />
+                    <input class="form-control quantity" value="1" type="number" class="mt-4 " placeholder="How much this plant?" />
                 </div>
-                <button class="btnSubmit btn btn-success" type="button">Add</button>
+                <button class="addBtn btn btn-primary" type="button">Add</button>
 
                 <input type="hidden" id="plant-data" name="ColorSizeQuantity" />
             </div>
-
-
-            <table class="table">
-               <tbody>
-                    @foreach (var item in Model.plantSizeColors)
-                    {
-                    <td>
-                       <p>
-                         @item.Size.Name => @item.Color.Name ===> @item.Quantity
-                      </p>   
-                    </td>
-                    }
-            </table>
-
-
+           
+                @foreach (var item in Model.PlantSizeColors)
+                {
+                    <tr>
+                        <td>
+                            <p>
+                                @item.Size.Name => @item.Color.Name ===> @item.Quantity
+                                <button type="button" class="btn btn-danger delbtnsize" element-id="@item.Id">X</button>
+                            </p>
+                            <input type="hidden" name="PlantSizeColorsId" id="DelELement" />
+                        </td>
+                    </tr>
+                }
 
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
@@ -178,11 +189,39 @@
 @section Scripts{
     <script>
 
-        var button = document.querySelector('.btnSubmit');
+        const closeBtns = document.querySelectorAll(".closeBtn");
+
+        closeBtns.forEach(btn => {
+            btn.addEventListener("click", function () {
+                this.parentElement.remove();
+            })
+        })
+
+        var buttons = document.querySelectorAll('.delbtnsize');
+        buttons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                this.parentElement.remove();
+                var Elementid = this.getAttribute('element-id');
+                var input = document.getElementById('DelELement');
+                var currentValue = input.value;
+                if (currentValue) {
+                    currentValue += ',' + Elementid;
+                } else {
+                    currentValue = Elementid;
+                }
+                input.value = currentValue;
+            });
+        });
+
+
+        var button = document.querySelector('.addBtn');
         button.addEventListener('click', function () {
             var sizeId = document.querySelector('.sizes').value;
             var colorId = document.querySelector('.colors').value;
             var quantity = this.previousElementSibling.querySelector('input[type="number"]').value;
+            if (quantity.trim() === "" || quantity <=0) {
+                quantity = "1";
+            }
             var hiddenInput = document.getElementById('plant-data');
             var hiddenValue = sizeId + '-' + colorId + '-' + quantity;
             var currentHiddenValue = hiddenInput.value;

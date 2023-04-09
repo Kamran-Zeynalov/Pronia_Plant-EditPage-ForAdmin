@@ -141,7 +141,6 @@ namespace P230_Pronia.Areas.ProniaAdmin.Controllers
         {
             if (id == 0) return BadRequest();
             PlantVM? model = EditedPlant(id);
-
             ViewBag.Informations = _context.PlantDeliveryInformation.AsEnumerable();
             ViewBag.Categories = _context.Categories.AsEnumerable();
             ViewBag.Tags = _context.Tags.AsEnumerable();
@@ -161,7 +160,7 @@ namespace P230_Pronia.Areas.ProniaAdmin.Controllers
             ViewBag.Tags = _context.Tags.AsEnumerable();
             PlantVM? model = EditedPlant(id);
 
-            Plant? plant = await _context.Plants.Include(p => p.PlantImages).FirstOrDefaultAsync(p => p.Id == id);
+            Plant? plant = await _context.Plants.Include(p => p.PlantImages).Include(p => p.PlantCategories).Include(p => p.PlantTags).Include(p => p.PlantSizeColors).FirstOrDefaultAsync(p => p.Id == id);
             if (plant is null) return BadRequest();
 
 
@@ -224,7 +223,7 @@ namespace P230_Pronia.Areas.ProniaAdmin.Controllers
                 //Remove hec cure eletdiremmedim(
 
 
-                //plant.PlantCategories.RemoveAll(c => !edited.CategoryIds.Contains(c.CategoryId));
+                plant.PlantCategories.RemoveAll(c => !edited.CategoryIds.Contains(c.CategoryId));
                 plant.PlantCategories.AddRange(newCategories);
             }
 
@@ -238,27 +237,45 @@ namespace P230_Pronia.Areas.ProniaAdmin.Controllers
                         newTags.Add(new PlantTag { Plant = plant, TagId = tagId });
                     }
                 }
+                plant.PlantTags.RemoveAll(c => !edited.TagIds.Contains(c.TagId));
+
                 plant.PlantTags.AddRange(newTags);
 
-                plant.PlantSizeColors.Clear();
             }
 
-
-            string colorSizeQuantity = edited.ColorSizeQuantity;
-            string[] colorSizeQuantities = colorSizeQuantity.Split(','); plant.PlantSizeColors.Clear();
-
-            foreach (string colorSizeQuantityLoop in colorSizeQuantities)
+            if (edited.ColorSizeQuantity is not null)
             {
-                string[] datas = colorSizeQuantityLoop.Split('-');
-                PlantSizeColor plantSizeColor = new()
+                string[] colorSizeQuantities = edited.ColorSizeQuantity.Split(',');
+                foreach (string colorSizeQuantityLoop in colorSizeQuantities)
                 {
-                    SizeId = int.Parse(datas[0]),
-                    ColorId = int.Parse(datas[1]),
-                    Quantity = int.Parse(datas[2])
-                };
-                plant.PlantSizeColors.Add(plantSizeColor);
+                    string[] datas = colorSizeQuantityLoop.Split('-');
+                    PlantSizeColor plantSizeColor = new()
+                    {
+                        SizeId = int.Parse(datas[0]),
+                        ColorId = int.Parse(datas[1]),
+                        Quantity = int.Parse(datas[2])
+                    };
+
+                    plant.PlantSizeColors.Add(plantSizeColor);
+                }
             }
-            _context.SaveChanges();
+
+            if (edited.PlantSizeColorsId is not null)
+            {
+                string[] ids = edited.PlantSizeColorsId.Split(',');
+                foreach (string PscId in ids)
+                {
+                    int sizeColorId = int.Parse(PscId);
+                    PlantSizeColor plantSizeColor = await _context.PlantSizeColors.FindAsync(sizeColorId);
+                    if (plantSizeColor != null)
+                    {
+                        plant.PlantSizeColors.Remove(plantSizeColor);
+                    }
+                }
+            }
+
+
+            await _context.SaveChangesAsync();
             //return Json(edited.CategoryIds);
             return RedirectToAction(nameof(Index));
         }
@@ -278,7 +295,7 @@ namespace P230_Pronia.Areas.ProniaAdmin.Controllers
                                                     Desc = p.Desc,
                                                     Price = p.Price,
                                                     DiscountPrice = p.Price,
-                                                    plantSizeColors = p.PlantSizeColors,
+                                                    PlantSizeColors = p.PlantSizeColors,
                                                     PlantDeliveryInformationId = p.PlantDeliveryInformationId,
                                                     CategoryIds = p.PlantCategories.Select(pc => pc.CategoryId).ToList(),
                                                     TagIds = p.PlantTags.Select(pc => pc.TagId).ToList(),

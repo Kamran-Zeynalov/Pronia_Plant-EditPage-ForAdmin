@@ -29,7 +29,14 @@ namespace P230_Pronia.ViewModels
         public ICollection<PlantImage>? SpecificImages { get; set; }
         public ICollection<int>? ImageIds { get; set; }
         public string? ColorSizeQuantity { get; set; }
-        public ICollection<PlantSizeColor>? plantSizeColors { get; set; }
+        public ICollection<PlantSizeColor>? PlantSizeColors { get; set; }
+        public string? PlantSizeColorsId { get; set; }
+
+        public PlantVM()
+        {
+            PlantSizeColors = new List<PlantSizeColor>();
+        }
+
 
 
     }
