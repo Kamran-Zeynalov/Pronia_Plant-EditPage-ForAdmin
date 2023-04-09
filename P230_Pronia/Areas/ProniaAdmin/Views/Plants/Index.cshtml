@@ -1,0 +1,108 @@
+﻿@model IEnumerable<P230_Pronia.Entities.Plant>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<label>Search</label><br />
+<input id="searchInput" type="text" class="form-control w-25"/>
+
+@section Scripts{
+    <script>
+        var count = 4;
+        document.getElementById("searchInput").addEventListener("input", function () {
+            count++;
+            if (count > 3) {
+                var url = "./Search?data=" + this.value
+                fetch(url).then(response => response.json()).then(data => console.log(data))
+                count = 0;
+            }
+        })
+
+
+
+    </script>
+}
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+@if(TempData["InvalidImages"] is not null)
+{
+    <p>@TempData["InvalidImages"]</p>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Image
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DiscountPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SKU)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Desc)
+            </th>
+            <th>
+                Plant's sizes and colors
+            </th>
+            <th>
+                Quantity
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <img style="width:150px;height:150px;object-fit:contain" src="~/assets/images/website-images//@item.PlantImages.FirstOrDefault(p=>p.IsMain==true)?.Path">
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DiscountPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SKU)
+                </td>
+                <td>
+                    @(item.Desc.Length>15 ? string.Concat(item.Desc.Substring(0, 15),"...") : item.Desc)
+                </td>
+                <td>
+                    @foreach(var colorSize in item.PlantSizeColors)
+                    {
+                        <p>
+                            @colorSize.Size.Name => @colorSize.Color.Name ===> @colorSize.Quantity
+                        </p>
+                    }
+                </td>
+                <td>
+                    @item.PlantSizeColors.Sum(p=>p.Quantity)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+

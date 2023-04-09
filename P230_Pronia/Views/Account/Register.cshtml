@@ -1,0 +1,58 @@
+﻿@model RegisterVM
+@{
+    ViewData["Title"] = "Register";
+}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 pt-5 pt-lg-0">
+            <form asp-action="Register" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <div class="login-form">
+                    <h4 class="login-title">Register</h4>
+                    <div class="row">
+                        <div class="col-md-6 col-12">
+                            <label asp-for="Firstname">First Name</label>
+                            <input asp-for="Firstname" placeholder="First Name">
+                            <span asp-validation-for="Firstname" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 col-12">
+                            <label asp-for="Lastname">Last Name</label>
+                            <input asp-for="Lastname" placeholder="Last Name">
+                        </div>
+                        <div class="col-md-12">
+                            <label asp-for="Username">Username*</label>
+                            <input asp-for="Username" placeholder="Username">
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-12">
+                            <label asp-for="Email">Email Address*</label>
+                            <input asp-for="Email" placeholder="Email Address">
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Password">Password</label>
+                            <input asp-for="Password" placeholder="Password">
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ConfirmPassword">Confirm Password</label>
+                            <input asp-for="ConfirmPassword" placeholder="Confirm Password">
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Terms">Terms</label>
+                            <input asp-for="Terms" placeholder="Confirm Password">
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-custom-size lg-size btn-pronia-primary">
+                                Register
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial"></partial>
+}

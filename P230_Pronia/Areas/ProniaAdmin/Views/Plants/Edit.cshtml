@@ -1,0 +1,199 @@
+﻿@model PlantVM
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@section CSS{
+    <style>
+        .mainBorder {
+            border: 2px dashed blue;
+        }
+
+        .hoverBorder {
+            border: 2px dashed red;
+        }
+        .closeBtn{
+            width:50px;
+            height:50px;
+            background:red;
+            position:absolute;
+            top:5px;
+            right:5px;
+        }
+    </style>
+}
+
+<h1>Edit</h1>
+
+<h4>PlantVM</h4>
+<hr />
+<div class="row">
+    <div class="col-md-9">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div class="row images">
+                @foreach (var item in Model.SpecificImages)
+                {
+                    <div class="image col-lg-3" style="position:relative">
+                        <img style="width:150px;height:150px;object-fit:contain" class="@(item.IsMain == true ? "mainBorder" : "") @(item.IsMain == null ? "hoverBorder" : "")" src="~/assets/images/website-images/@item.Path">
+                        <input type="hidden" name="ImageIds" value="@item.Id">
+                        @if(item.IsMain == false){
+                            <button class="closeBtn" type="button">X</button>
+                        }
+                    </div>
+                }
+            </div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="MainPhoto" class="control-label"></label>
+                <input asp-for="MainPhoto" class="form-control" />
+                <span asp-validation-for="MainPhoto" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HoverPhoto" class="control-label"></label>
+                <input asp-for="HoverPhoto" class="form-control" />
+                <span asp-validation-for="HoverPhoto" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Images" class="control-label"></label>
+                <input asp-for="Images" class="form-control" />
+                <span asp-validation-for="Images" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiscountPrice" class="control-label"></label>
+                <input asp-for="DiscountPrice" class="form-control" />
+                <span asp-validation-for="DiscountPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SKU" class="control-label"></label>
+                <input asp-for="SKU" class="form-control" />
+                <span asp-validation-for="SKU" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Desc" class="control-label"></label>
+                <input asp-for="Desc" class="form-control" />
+                <span asp-validation-for="Desc" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PlantDeliveryInformationId" class="control-label"></label>
+                <select asp-for="PlantDeliveryInformationId" class="form-control">
+                    @foreach (var information in ViewBag.Informations)
+                    {
+                        if (Model.PlantDeliveryInformationId == information.Id)
+                        {
+                            <option value="@information.Id" selected="selected">@information.Shipping</option>
+                        }
+                        else
+                        {
+                            <option value="@information.Id">@information.Shipping</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="PlantDeliveryInformationId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label"></label>
+                <select asp-for="CategoryIds" class="form-control">
+                    @foreach (var category in ViewBag.Categories)
+                    {
+                        if (Model.CategoryIds.Any(c => c == category.Id))
+                        {
+                            <option value="@category.Id" selected="selected">@category.Name</option>
+                        }
+                        else
+                        {
+                            <option value="@category.Id">@category.Name</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="CategoryIds" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label"></label>
+                <select asp-for="TagIds" class="form-control">
+                    @foreach (var tag in ViewBag.Tags)
+                    {
+
+                        if (Model.TagIds.Any(c => c == tag.Id))
+                        {
+                            <option value="@tag.Id" selected="selected">@tag.Name</option>
+                        }
+                        else
+                        {
+                            <option value="@tag.Id">@tag.Name</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="TagIds" class="text-danger"></span>
+            </div>
+             <div class="mt-5 form-group">
+                <label class="control-label">Size,Color and Quantity</label>
+                <div class="d-flex">
+                    <select class="form-control sizes" asp-items="@(new SelectList(ViewBag.Sizes,"Id","Name"))"></select>
+                    <select class="form-control colors" asp-items="@(new SelectList(ViewBag.Colors, "Id", "Name"))"></select>
+                    <input class="form-control quantity" type="number" class="mt-4 " placeholder="How much this plant?" />
+                </div>
+                <button class="btnSubmit btn btn-success" type="button">Add</button>
+
+                <input type="hidden" id="plant-data" name="ColorSizeQuantity" />
+            </div>
+
+
+            <table class="table">
+               <tbody>
+                    @foreach (var item in Model.plantSizeColors)
+                    {
+                    <td>
+                       <p>
+                         @item.Size.Name => @item.Color.Name ===> @item.Quantity
+                      </p>   
+                    </td>
+                    }
+            </table>
+
+
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+@section Scripts{
+    <script>
+
+        var button = document.querySelector('.btnSubmit');
+        button.addEventListener('click', function () {
+            var sizeId = document.querySelector('.sizes').value;
+            var colorId = document.querySelector('.colors').value;
+            var quantity = this.previousElementSibling.querySelector('input[type="number"]').value;
+            var hiddenInput = document.getElementById('plant-data');
+            var hiddenValue = sizeId + '-' + colorId + '-' + quantity;
+            var currentHiddenValue = hiddenInput.value;
+            if (currentHiddenValue) {
+                currentHiddenValue += ',' + hiddenValue;
+            } else {
+                currentHiddenValue = hiddenValue;
+            }
+            hiddenInput.value = currentHiddenValue;
+            console.log(hiddenInput);
+        });
+    </script>
+
+}
