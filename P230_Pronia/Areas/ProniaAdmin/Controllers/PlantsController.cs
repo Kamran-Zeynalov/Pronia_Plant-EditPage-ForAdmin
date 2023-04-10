@@ -201,14 +201,10 @@ namespace P230_Pronia.Areas.ProniaAdmin.Controllers
                 }
             }
 
-
-
-
             plant.Name = edited.Name;
             plant.Price = edited.Price;
             plant.Desc = edited.Desc;
             plant.SKU = edited.SKU;
-
 
             if (edited.CategoryIds is not null)
             {
@@ -221,7 +217,6 @@ namespace P230_Pronia.Areas.ProniaAdmin.Controllers
                     }
                 }
                 //Remove hec cure eletdiremmedim(
-
 
                 plant.PlantCategories.RemoveAll(c => !edited.CategoryIds.Contains(c.CategoryId));
                 plant.PlantCategories.AddRange(newCategories);
@@ -243,9 +238,19 @@ namespace P230_Pronia.Areas.ProniaAdmin.Controllers
 
             }
 
-            if (edited.ColorSizeQuantity is not null)
+            AddPlantSizeColors(plant, edited.ColorSizeQuantity);
+            RemovePlantSizeColors(plant, edited.PlantSizeColorsId, _context);
+
+            await _context.SaveChangesAsync();
+            //return Json(edited.CategoryIds);
+            return RedirectToAction(nameof(Index));
+        }
+
+        private static void AddPlantSizeColors(Plant plant, string colorSizeQuantity)
+        {
+            if (!string.IsNullOrEmpty(colorSizeQuantity))
             {
-                string[] colorSizeQuantities = edited.ColorSizeQuantity.Split(',');
+                string[] colorSizeQuantities = colorSizeQuantity.Split(',');
                 foreach (string colorSizeQuantityLoop in colorSizeQuantities)
                 {
                     string[] datas = colorSizeQuantityLoop.Split('-');
@@ -259,25 +264,22 @@ namespace P230_Pronia.Areas.ProniaAdmin.Controllers
                     plant.PlantSizeColors.Add(plantSizeColor);
                 }
             }
-
-            if (edited.PlantSizeColorsId is not null)
+        }
+        private static async Task RemovePlantSizeColors(Plant plant, string plantSizeColorsId, ProniaDbContext _context)
+        {
+            if (!string.IsNullOrEmpty(plantSizeColorsId))
             {
-                string[] ids = edited.PlantSizeColorsId.Split(',');
-                foreach (string PscId in ids)
+                string[] ids = plantSizeColorsId.Split(',');
+                foreach (string pscId in ids)
                 {
-                    int sizeColorId = int.Parse(PscId);
-                    PlantSizeColor plantSizeColor = await _context.PlantSizeColors.FindAsync(sizeColorId);
+                    int sizeColorId = int.Parse(pscId);
+                    PlantSizeColor? plantSizeColor = await _context.PlantSizeColors.FindAsync(sizeColorId);
                     if (plantSizeColor != null)
                     {
                         plant.PlantSizeColors.Remove(plantSizeColor);
                     }
                 }
             }
-
-
-            await _context.SaveChangesAsync();
-            //return Json(edited.CategoryIds);
-            return RedirectToAction(nameof(Index));
         }
 
         private PlantVM? EditedPlant(int id)
